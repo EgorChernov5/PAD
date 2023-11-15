@@ -3,3 +3,5 @@ venv
 .ipynb_checkpoints
 data
 logs
+dags/__pycache__
+dags/.ipynb_checkpoints
