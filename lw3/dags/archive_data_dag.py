@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import json
-import os
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -13,21 +12,30 @@ default_args = dict(
 )
 
 
-def extract_data():
-    f = open(os.getenv('DATA_DIR') + '/data/staging/v1/plans.json', 'r')
-    old_plans = json.loads(f.read())
-    print(old_plans)
+def etl_data():
+    print("MY LOG: Extract archive data...")
+    f = open("./data/staging/archive_data/modules.json", 'r')
+    modules = json.loads(f.read())
     
-    # f = open(os.getenv('DATA_DIR') + '/v1/modules.json', "r")
-    # old_modules = json.loads(f.read())
+    f = open("./data/staging/archive_data/plans.json", 'r')
+    plans = json.loads(f.read())
+    print("MY LOG: Complite!")
 
+    print("MY LOG: Transform archive data...")
+    for plan in plans['plans']:
+        plan['is_deleted'] = False
+    
+    for module in modules['modules']:
+        module['is_deleted'] = False
+    print("MY LOG: Complite!")
 
-def transform_data():
-    pass
+    print("MY LOG: Load archive data...")
+    with open("./data/staging/staging_plans.json", 'w') as file:
+        json.dump(plans, file)
 
-
-def load_data():
-    pass
+    with open("./data/staging/staging_modules.json", 'w') as file:
+        json.dump(modules, file)
+    print("MY LOG: Complite!")
 
 
 with DAG(
@@ -38,6 +46,6 @@ with DAG(
     schedule_interval='@daily',
     catchup=False
 ) as dag:
-    ext_data = PythonOperator(task_id='extract_archive_data',
-                           python_callable=extract_data)
-    ext_data
+    task = PythonOperator(task_id='etl_archive_data',
+                           python_callable=etl_data)
+    task
