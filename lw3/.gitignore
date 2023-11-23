@@ -5,3 +5,7 @@ data
 logs
 dags/__pycache__
 dags/.ipynb_checkpoints
+*.ipynb
+.dockerignore
+*/.idea
+.idea
